@@ -1,0 +1,38 @@
+name: Deploy Python Azure Function App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12' # Ensure it's compatible with Azure Functions
+
+      - name: Set up Azure Functions Core Tools
+        uses: npm/action@v1
+        with:
+          args: install -g azure-functions-core-tools@4 --unsafe-perm true
+
+      - name: Set up .venv
+        run: |
+          python -m venv .venv
+          source .venv/bin/activate
+          pip install -r requirements.txt
+
+      - name: Publish to Azure Function App
+        env:
+          AZURE_FUNCTIONAPP_PUBLISH_PROFILE: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+        run: |
+          echo "$AZURE_FUNCTIONAPP_PUBLISH_PROFILE" > publish-profile.pubxml
+          source .venv/bin/activate
+          func azure functionapp publish APS-01 --python --publish-profile publish-profile.pubxml
