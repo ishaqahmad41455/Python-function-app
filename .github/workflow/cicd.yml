@@ -36,3 +36,6 @@ jobs:
           echo "$AZURE_FUNCTIONAPP_PUBLISH_PROFILE" > publish-profile.pubxml
           source .venv/bin/activate
           func azure functionapp publish APS-01 --python --publish-profile publish-profile.pubxml
+
+
+# Clean up
