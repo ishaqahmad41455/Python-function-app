@@ -38,4 +38,3 @@ jobs:
           func azure functionapp publish APS-01 --python --publish-profile publish-profile.pubxml
 
 
-# Clean up
