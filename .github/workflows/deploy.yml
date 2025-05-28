@@ -28,7 +28,12 @@ jobs:
         python -m pip install -r requirements.txt
 
     - name: Zip package (exclude venv)
-      run: zip -r functionapp.zip . -x "venv/*"
+      run: |
+        mkdir deploy_package
+        shopt -s extglob
+        cp -r !(venv|deploy_package|functionapp.zip) deploy_package/
+        cd deploy_package
+        zip -r ../functionapp.zip .
 
     - name: Deploy to Azure Function App
       uses: Azure/functions-action@v1
