@@ -1,32 +1,52 @@
 name: Deploy to Azure Function App
 
 on:
-    push:
-        branches:
-          - main
-    
+  push:
+    branches:
+      - main
+
+env:
+  AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'  # set this to the path to your web app project, defaults to the repository root
+  PYTHON_VERSION: '3.12'  # set this to the python version to use
+
 jobs:
-    deploy:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout repository
-          uses: actions/checkout@v4
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
-        - name: Setup Python
-          uses: actions/setup-python@v5
-          with:
-            python-version: '3.12'
+    - name: Setup Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
 
-        - name: Install dependencies
-          run: |
-            python -m venv venv
-            source venv/bin/activate
-            pip install --upgrade pip
-            pip install -r requirements.txt
+    - name: Create and start virtual environment
+      run: |
+        python -m venv venv
+        source venv/bin/activate
+        
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run functional tests (optional)
+      run: |
+        # Add your test commands here if you have tests
+        # Example: pytest tests/
 
-        - name: Deploy to Azure Function App
-          uses: azure/functions-action@v1
-          with:
-            app-name: 'my-testfunction01'
-            publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-            package: '.'
+    - name: Upload artifact for deployment jobs (optional)
+      uses: actions/upload-artifact@v4
+      with:
+        name: python-app
+        path: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+
+    - name: Deploy to Azure Function App
+      uses: Azure/functions-action@v1
+      with:
+        app-name: 'my-testfunction01'
+        package: ${{ env.AZURE_FUNCTIONAPP_PACKAGE_PATH }}
+        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+        enable-oryx-build: false  # Explicitly disable Oryx build
+        scm-do-build-during-deployment: false  # Explicitly disable SCM build
