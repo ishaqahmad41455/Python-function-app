@@ -35,5 +35,4 @@ jobs:
       with:
         app-name: 'my-testfunction01'
         publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-        # package: functionapp.zip
-        package: '.'
+        package: functionapp.zip
